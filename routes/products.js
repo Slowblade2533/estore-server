@@ -3,9 +3,23 @@ const db = require("../shared/pool");
 const products = express.Router();
 
 products.get("/", async (req, res) => {
+  const mainCategoryId = req.query.maincategoryid;
+  const subCategoryId = req.query.subcategoryid;
+
+  let query = "SELECT * FROM estore.products";
+  let queryParams = [];
+
+  if(mainCategoryId) {
+    query = "SELECT estore.products.* FROM estore.products JOIN estore.categories ON products.category_id = categories.id WHERE categories.parent_category_id = $1";
+    queryParams.push(mainCategoryId);
+  } else if (subCategoryId) {
+    query += " where category_id = $1";
+    queryParams.push(subCategoryId);
+  }
+
   try {
     const products = await db.any(
-        "SELECT * FROM estore.products"
+      query,queryParams
     );
     res.json(products);
   } catch (error) {
@@ -17,7 +31,7 @@ products.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
     const products = await db.any(
-      `SELECT * FROM estore.products WHERE id = $1`, [id]
+      "SELECT * FROM estore.products WHERE id = $1", [id]
     );
     res.json(products);
   } catch (error) {
