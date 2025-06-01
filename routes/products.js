@@ -15,10 +15,9 @@ products.get("/", async (req, res) => {
       "SELECT estore.products.* FROM estore.products JOIN estore.categories ON products.category_id = categories.id WHERE categories.parent_category_id = $1";
     queryParams.push(mainCategoryId);
 
-    if(keyword) {
+    if (keyword) {
       query += ` AND keywords LIKE '%${keyword}%'`;
     }
-
   } else if (subCategoryId) {
     query += " where category_id = $1";
     queryParams.push(subCategoryId);
